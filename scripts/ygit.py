@@ -605,9 +605,9 @@ def main():
         
     if len(args) < 2 or args[0].lower().startswith("actions"):
         if len(args) == 0:
-            messenger.error("Please specify an action and a remote repository:\n")
+            messenger.error("Please specify an action and a remote repository:")
         elif len(args) == 1:
-            messenger.error("Please specify a remote repository reference:\n")
+            messenger.error("Please specify a remote repository reference:")
         show_commands_help(sys.stderr)
         sys.exit(1)
 
