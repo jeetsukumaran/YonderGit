@@ -44,7 +44,7 @@ Remote Git repository management utilities.""",
       packages=[],
       package_dir={},
       package_data={},
-      scripts=['scripts/ygit.py'],   
+      scripts=['scripts/ygit.py', 'scripts/ygit-push-all.py'],   
       include_package_data=True,         
       zip_safe=True,
       install_requires=[

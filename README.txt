@@ -1,4 +1,4 @@
-PowerGit Utilities
+YonderGit Utilities
 ===================
 
 (C) 2008 Jeet Sukumaran.
