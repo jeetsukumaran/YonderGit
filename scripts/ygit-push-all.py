@@ -31,7 +31,7 @@ from optparse import OptionGroup
 from optparse import OptionParser
 
 _prog_usage = '%prog [options] <ACTION> <REPO-URL>'
-_prog_version = 'ygit-push-all Version 1.0'
+_prog_version = 'ygit-push-all Version 1.1'
 _prog_description = """\
 Push out to all remote repositories"""
 _prog_author = 'Jeet Sukumaran'
