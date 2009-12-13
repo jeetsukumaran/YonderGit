@@ -441,7 +441,7 @@ def add_remote(remote_name, repo_ref, messenger, opts):
 
 def show_commands_help(stream=sys.stdout):
     stream.write("""\
-    
+
 Usage: ygit.py [options] <ACTION> <REPO-URL>
 ----------------+-----------------------------------------------------------
 If ACTION is:   | YonderGit Will:
@@ -526,9 +526,6 @@ def main():
         default=False,
         help='do not actually do anything')
 
-    act_opts = OptionGroup(parser, 'Actions')
-    parser.add_option_group(act_opts)
-
     init_opts = OptionGroup(parser, 'Initialization Options')
     parser.add_option_group(init_opts)
 
@@ -598,11 +595,11 @@ def main():
 
     if opts.actions:
         show_commands_help(sys.stdout)
-        sys.exit(1)    
-        
+        sys.exit(1)
+
     # order actions will be executed if multiple specified:
     # check, remove, create (init), init, add
-        
+
     if len(args) < 2 or args[0].lower().startswith("actions"):
         if len(args) == 0:
             messenger.error("Please specify an action and a remote repository:")
