@@ -466,8 +466,8 @@ See "ygit.py --help" for help on options.
 ############################################################################
 ## Main CLI
 
-_prog_usage = '%prog [options] <ACTION> <REPO-URL>'
-_prog_version = 'YonderGit Version 1.1'
+_prog_usage = '%prog [options] <setup | create | init | add | remove> <REPO-URL>'
+_prog_version = 'YonderGit Version 1.2'
 _prog_description = """\
 Remote Git repository manager: create, initialize and/or add a Git repository
 at REPO-URL as a remote of the local repository. See "ygit.py actions" for
