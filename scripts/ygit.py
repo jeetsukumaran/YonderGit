@@ -438,39 +438,47 @@ def add_remote(remote_name, repo_ref, messenger, opts):
         proc = subprocess.Popen([command], shell=True, stdout=git_stdout)
         proc.wait()
 
+def show_urls_help(stream=sys.stdout):
+    stream.write("Examples of REPO-URL's:\n")
+    for u in EXAMPLE_URLS:
+        stream.write('\t%s\n' % u)
 
-def show_commands_help(stream=sys.stdout):
+def show_commands_help(stream=sys.stdout, show_more_help=True):
     stream.write("""\
 
 Usage: ygit.py [options] <ACTION> <REPO-URL>
-----------------+-----------------------------------------------------------
+----------------+----------------------------------------------------------
 If ACTION is:   | YonderGit Will:
-----------------+-----------------------------------------------------------
+----------------+----------------------------------------------------------
 actions         | show this message and exit
 setup REPO-URL  | create and initialize a new repository at REPO-URL,
                 | and add it as a remote of the local one; equivalent
                 | to "--create" and "--add"
-create REPO-URL | create a new directory at REPO-URL and initialize it as a
-                | new repository (including running "server-update-info")
+create REPO-URL | create a new directory at REPO-URL and initialize it as
+                | a new repository (including running "server-update-info")
 init REPO-URL   | initialize existing directory at REPO-URL as a repository
 add REPO-URL    | add REPO-URL as a remote reference to the local git
                 | repository of the current directory
 check REPO-URL  | check the existence of an accessible directory given
                 | specified by REPO-URL
-remove REPO-URL | recursively remove the directory specified by REPO-URL and
-                | all subdirectories.
-----------------+-----------------------------------------------------------
-See "ygit.py --help" for help on options.
+remove REPO-URL | recursively remove the directory specified by REPO-URL
+                | and all subdirectories.
+----------------+----------------------------------------------------------
+""")
+    if show_more_help:
+        stream.write("""\
+See 'ygit.py help options' for help on options, or 'ygit.py help urls' for
+help on REPO-URL syntaxes.
 """)
 
 ############################################################################
 ## Main CLI
 
-_prog_usage = '%prog [options] <setup | create | init | add | remove> <REPO-URL>'
+_prog_usage = '%prog [options] <setup|create|init|add|remove|help> <REPO-URL>'
 _prog_version = 'YonderGit Version 1.2'
 _prog_description = """\
 Remote Git repository manager: create, initialize and/or add a Git repository
-at REPO-URL as a remote of the local repository. See "ygit.py actions" for
+at REPO-URL as a remote of the local repository. See "ygit.py help actions" for
 help on action commands."""
 _prog_author = 'Jeet Sukumaran'
 _prog_copyright = 'Copyright (C) 2008 Jeet Sukumaran.'
@@ -484,11 +492,17 @@ def main():
                           version=_prog_version,
                           description=_prog_description)
 
-    parser.add_option('-?', '--actions',
+    parser.add_option('--actions?',
         action='store_true',
         dest='actions',
         default=False,
         help='show list of possible action commands and exit')
+
+    parser.add_option('--urls?',
+        action='store_true',
+        dest='urls',
+        default=False,
+        help='show examples of REPO-URL syntaxes and exit')
 
     parser.add_option('-q', '--quiet',
         action='store_true',
@@ -594,8 +608,34 @@ def main():
                           dry_run=opts.dry_run)
 
     if opts.actions:
-        show_commands_help(sys.stdout)
-        sys.exit(1)
+        show_commands_help()
+        sys.exit(0)
+
+    if opts.urls:
+        show_urls_help()
+        sys.exit(0)
+
+    if len(args) >= 1:
+        if args[0].lower() == 'help':
+            if len(args) >= 2:
+                if args[1].lower().startswith('act'):
+                    show_commands_help()
+                    sys.exit(0)
+                elif args[1].lower().startswith('url') or args[1].lower().startswith('repo'):
+                    show_urls_help()
+                    sys.exit(0)
+                elif args[1].lower().startswith('opt'):
+                    parser.print_help()
+                    sys.exit(0)
+                else:
+                    sys.stderr.write("Unrecognized help term '%s'.\n" % args[1])
+                    sys.stderr.write("Available help terms: 'actions', 'urls', 'options'.\n")
+                    sys.exit(1)
+            else:
+                show_commands_help(show_more_help=False)
+                show_urls_help()
+#                sys.stderr.write("Specify 'help actions' for help on actions, and 'help urls' for help on REPO-URL syntax.\n")
+                sys.exit(0)
 
     # order actions will be executed if multiple specified:
     # check, remove, create (init), init, add
@@ -604,7 +644,10 @@ def main():
         if len(args) == 0:
             messenger.error("Please specify an action and a remote repository:")
         elif len(args) == 1:
-            messenger.error("Please specify a remote repository reference:")
+            if args[0].lower() not in ['check', 'remove', 'setup', 'create', 'init', 'add']:
+                messenger.error("'%s' is not a recognized command." % args[0])
+            else:
+                messenger.error("Please specify a remote repository reference:")
         show_commands_help(sys.stderr)
         sys.exit(1)
 
