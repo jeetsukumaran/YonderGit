@@ -35,7 +35,7 @@ import subprocess
 version = "1.1.0"
 
 setup(name='YonderGit',
-      version=version,     
+      version=version,
       author='Jeet Sukumaran',
       author_email='jeetsukumaran@gmail.com',
       description="""\
@@ -44,15 +44,15 @@ Remote Git repository management utilities.""",
       packages=[],
       package_dir={},
       package_data={},
-      scripts=['scripts/ygit.py', 'scripts/ygit-push-all.py'],   
-      include_package_data=True,         
+      scripts=['scripts/ygit.py'],
+      include_package_data=True,
       zip_safe=True,
       install_requires=[
           # -*- Extra requirements: -*-
       ],
       entry_points="""
       # -*- Entry points: -*-
-      """,      
+      """,
       long_description="""\
 Simplify the management of remote Git repositories by wrapping lower-level
 filesystem and repository maintenance operations.""",
@@ -64,5 +64,5 @@ filesystem and repository maintenance operations.""",
             "Operating System :: OS Independent",
             "Programming Language :: Python",
             ],
-      keywords='Git version control',      
+      keywords='Git version control',
       )
