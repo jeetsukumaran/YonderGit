@@ -33,6 +33,17 @@ import re
 import subprocess
 
 ############################################################################
+## Program identification
+
+_prog_version = 'YonderGit Version 2.0'
+_prog_description = """\
+Remote Git repository manager: create, initialize and/or add a Git repository
+at REPO-URL as a remote of the local repository. See "ygit.py help commands" for
+help on commands."""
+_prog_author = 'Jeet Sukumaran'
+_prog_copyright = 'Copyright (C) 2009 Jeet Sukumaran.'
+
+############################################################################
 ## Parsing Git repository URL's
 
 EXAMPLE_URLS = [
@@ -274,7 +285,7 @@ def check_remote(repo_ref, messenger, opts):
         messenger.error("Repository not found at: %s" % messenger.compose_repo_ref(repo_ref))
         sys.exit(1)
 
-def remove_remote(repo_ref, messenger, opts):
+def delete_remote(repo_ref, messenger, opts):
     """
     Delete repository ... USE WITH CAUTION!
     """
@@ -283,7 +294,7 @@ def remove_remote(repo_ref, messenger, opts):
         messenger.error("Error connnecting to: %s" % messenger.compose_repo_ref(repo_ref))
         sys.exit(1)
     if exists:
-        messenger.ygit_info("Removing repository: %s" % messenger.compose_repo_ref(repo_ref))
+        messenger.ygit_info("Deleting repository: %s" % messenger.compose_repo_ref(repo_ref))
         if repo_ref.protocol == 'ssh':
             command = repo_ref.ssh_command + " 'rm -r %s'" % repo_ref.repo_path
         elif repo_ref.protocol == 'file':
@@ -305,7 +316,7 @@ def remove_remote(repo_ref, messenger, opts):
             messenger.error("Error removing repository.")
             sys.exit(1)
         else:
-            messenger.info("Repository removed, but may still be referenced in local.")
+            messenger.info("Repository deleted, but may still be referenced in local.")
             messenger.info('Use "git remote rm <name>" to remove reference.')
     else:
         messenger.error("Repository not found: %s" % messenger.compose_repo_ref(repo_ref))
@@ -320,7 +331,7 @@ def create_remote(repo_ref, messenger, opts, init=True):
         sys.exit(1)
     if exists:
         messenger.error("Repository already exists.")
-        messenger.error("Please remove the repository before proceeding, or use another location.")
+        messenger.error("Please delete the repository before proceeding, or use another location.")
         sys.exit(1)
     if opts.all_quiet:
         git_stdout = subprocess.PIPE
@@ -448,24 +459,30 @@ def show_urls_help(stream=sys.stdout):
 def show_commands_help(stream=sys.stdout, show_more_help=True):
     stream.write("""\
 
-Usage: ygit.py [options] <ACTION> <REPO-URL>
-----------------+----------------------------------------------------------
-If ACTION is:   | YonderGit Will:
-----------------+----------------------------------------------------------
-actions         | show this message and exit
-setup REPO-URL  | create and initialize a new repository at REPO-URL,
-                | and add it as a remote of the local one; equivalent
-                | to "--create" and "--add"
-create REPO-URL | create a new directory at REPO-URL and initialize it as
-                | a new repository (including running "server-update-info")
-init REPO-URL   | initialize existing directory at REPO-URL as a repository
-add REPO-URL    | add REPO-URL as a remote reference to the local git
-                | repository of the current directory
-check REPO-URL  | check the existence of an accessible directory given
-                | specified by REPO-URL
-remove REPO-URL | recursively remove the directory specified by REPO-URL
-                | and all subdirectories.
-----------------+----------------------------------------------------------
+==============================================================================
+YonderGit Commands
+=========================+====================================================
+setup <NAME> <REPO-URL>  | create and initialize a new repository at
+                         | <REPO-URL>, and add it as a remote called '<NAME>';
+                         | equivalent to "--create <REPO-URL>" followed by
+                         | "--add <NAME> <REPO-URL>"
+-------------------------+----------------------------------------------------
+create <REPO-URL>        | create a new directory at <REPO-URL> and initialize
+                         | it as a new repository (including running
+                         | "server-update-info")
+-------------------------+----------------------------------------------------
+init <REPO-URL>          | initialize existing remote directory at <REPO-URL>
+                         | as a repository
+-------------------------+----------------------------------------------------
+add <NAME> <REPO-URL>    | add repository at <REPO-URL> as a remote named
+                         | '<NAME>'
+-------------------------+----------------------------------------------------
+check <REPO-URL>         | check the existence of an accessible directory given
+                         | specified by <REPO-URL>
+-------------------------+----------------------------------------------------
+delete <REPO-URL>        | recursively delete the directory specified by
+                         | <REPO-URL> and all subdirectories.
+=========================+====================================================
 """)
     if show_more_help:
         stream.write("""\
@@ -476,29 +493,21 @@ help on REPO-URL syntaxes.
 ############################################################################
 ## Main CLI
 
-_prog_usage = '%prog [options] <setup|create|init|add|remove|help> <REPO-URL>'
-_prog_version = 'YonderGit Version 1.3'
-_prog_description = """\
-Remote Git repository manager: create, initialize and/or add a Git repository
-at REPO-URL as a remote of the local repository. See "ygit.py help actions" for
-help on action commands."""
-_prog_author = 'Jeet Sukumaran'
-_prog_copyright = 'Copyright (C) 2008 Jeet Sukumaran.'
 def main():
     """
     Main CLI handler.
     """
-
-    parser = OptionParser(usage=_prog_usage,
+    usage = '%prog [options] <setup|create|init|add|delete|help> <ARGS>'
+    parser = OptionParser(usage=usage,
                           add_help_option=True,
                           version=_prog_version,
                           description=_prog_description)
 
-    parser.add_option('--actions?',
+    parser.add_option('--commands?',
         action='store_true',
-        dest='actions',
+        dest='commands',
         default=False,
-        help='show list of possible action commands and exit')
+        help='show list of possible  commands and exit')
 
     parser.add_option('--urls?',
         action='store_true',
@@ -573,13 +582,13 @@ def main():
     add_opts = OptionGroup(parser, 'Adding Options')
     parser.add_option_group(add_opts)
 
-    add_opts.add_option('-n', '--name',
-        action='store',
-        dest='name',
-        default=None,
-        help='name for repository at REPO-URL (default is server name if using ' \
-            +' the ssh protocol or base repository parent directory name if '
-            +' using file protocol)')
+#    add_opts.add_option('-n', '--name',
+#        action='store',
+#        dest='name',
+#        default=None,
+#        help='name for repository at REPO-URL (default is server name if using ' \
+#            +' the ssh protocol or base repository parent directory name if '
+#            +' using file protocol)')
 
     add_opts.add_option('--mirror',
         action='store_true',
@@ -609,7 +618,7 @@ def main():
                           show_debug=opts.show_debug,
                           dry_run=opts.dry_run)
 
-    if opts.actions:
+    if opts.commands:
         show_commands_help()
         sys.exit(0)
 
@@ -617,73 +626,77 @@ def main():
         show_urls_help()
         sys.exit(0)
 
-    if len(args) >= 1:
-        if args[0].lower() == 'help':
-            if len(args) >= 2:
-                if args[1].lower().startswith('act'):
-                    show_commands_help()
-                    sys.exit(0)
-                elif args[1].lower().startswith('url') or args[1].lower().startswith('repo'):
-                    show_urls_help()
-                    sys.exit(0)
-                elif args[1].lower().startswith('opt'):
-                    parser.print_help()
-                    sys.exit(0)
-                else:
-                    sys.stderr.write("Unrecognized help term '%s'.\n" % args[1])
-                    sys.stderr.write("Available help terms: 'actions', 'urls', 'options'.\n")
-                    sys.exit(1)
-            else:
-                show_commands_help(show_more_help=False)
-                show_urls_help()
-#                sys.stderr.write("Specify 'help actions' for help on actions, and 'help urls' for help on REPO-URL syntax.\n")
+    if len(args) == 0:
+        parser.print_help()
+        sys.exit(0)
+
+    if args[0].lower().startswith('command'):
+        show_commands_help(show_more_help=False)
+        sys.exit(0)
+
+    if args[0].lower() == 'help':
+        if len(args) >= 2:
+            if args[1].lower().startswith('com'):
+                show_commands_help()
                 sys.exit(0)
-
-    # order actions will be executed if multiple specified:
-    # check, remove, create (init), init, add
-
-    if len(args) < 2 or args[0].lower().startswith("actions"):
-        if len(args) == 0:
-            messenger.error("Please specify an action and a remote repository:")
-        elif len(args) == 1:
-            if args[0].lower() not in ['check', 'remove', 'setup', 'create', 'init', 'add']:
-                messenger.error("'%s' is not a recognized command." % args[0])
+            elif args[1].lower().startswith('url') or args[1].lower().startswith('repo'):
+                show_urls_help()
+                sys.exit(0)
+            elif args[1].lower().startswith('opt'):
+                parser.print_help()
+                sys.exit(0)
             else:
-                messenger.error("Please specify a remote repository reference:")
-        show_commands_help(sys.stderr)
+                messenger.error("Unrecognized help term '%s'" % args[1])
+                messenger.error("Available help terms: 'commands', 'urls', 'options'")
+                sys.exit(1)
+        else:
+            show_commands_help(show_more_help=False)
+            show_urls_help()
+            sys.exit(0)
+
+    command_command = args[0].lower()
+    args = args[1:]
+    valid_commands = ['setup', 'create', 'init', 'add', 'check', 'delete']
+    if command_command not in valid_commands:
+        messenger.error("'%s' is not a valid command" % command_command)
         sys.exit(1)
+    if command_command in ['setup', 'add']:
+        if len(args) < 2:
+            messenger.error("'%s' requires specification of remote name and repository URL" % command_command)
+            sys.exit(1)
+        elif len(args) > 2:
+            messenger.error("'%s' takes a maximum of two arguments: remote name and repository URL" % command_command)
+            sys.exit(1)
+        remote_name = args[0]
+        remote_url = args[1]
+    else:
+        if len(args) < 1:
+            messenger.error("'%s' requires specification of repository URL" % command_command)
+            sys.exit(1)
+        elif len(args) > 1:
+            messenger.error("'%s' takes a maximum of one argument: the repository URL" % command_command)
+            sys.exit(1)
+        remote_name = None
+        remote_url = args[0]
 
-    action_command = args[0].lower()
-    action_check = False
-    action_remove = False
-    action_create = False
-    action_init = False
-    action_add = False
-    if action_command == 'check':
-        action_check = True
-    if action_command == 'remove':
-        action_remove = True
-    if action_command == 'setup':
-        action_create = True
-        action_add = True
-    if action_command == 'create':
-        action_create = True
-    if action_command == 'init':
-        action_init = True
-    if action_command == 'add':
-        action_add = True
-
-    if not action_check \
-        and not action_create \
-        and not action_init \
-        and not action_add \
-        and not action_remove:
-        messenger.error('Need to specify an action: check, remove, setup, ' \
-                        +'create, init, or add.')
-        messenger.error('See "ygit.py actions" for more information.')
-        sys.exit(1)
-
-    remote_url = args[1]
+    command_check = False
+    command_delete = False
+    command_create = False
+    command_init = False
+    command_add = False
+    if command_command == 'check':
+       command_check = True
+    if command_command == 'delete':
+       command_delete = True
+    if command_command == 'setup':
+       command_create = True
+       command_add = True
+    if command_command == 'create':
+       command_create = True
+    if command_command == 'init':
+       command_init = True
+    if command_command == 'add':
+       command_add = True
 
     if remote_url.count(' ') or remote_url.count('\t'):
         messenger.error("Whitespace detected in URL path: refusing to continue with this insanity.")
@@ -691,21 +704,9 @@ def main():
 
     repo_ref = RepositoryReference(remote_url)
 
-    if opts.name is None:
-        if repo_ref.host is not None:
-            remote_name = repo_ref.host
-        elif repo_ref.dir_name is not None:
-            remote_name = os.path.basename(os.path.expanduser(os.path.expandvars(repo_ref.repo_path)))
-        else:
-            remote_name = "origin"
-    else:
-        remote_name = opts.name
-
-    #messenger.ygit_info("%s" % (_prog_version))
-
     messenger.debug('\n---')
     if remote_name:
-        messenger.debug('    Remote: "%s"' % remote_name)
+        messenger.debug("    Remote: '%s'" % remote_name)
     if repo_ref.protocol:
         messenger.debug("  Protocol: %s" % repo_ref.protocol)
     if repo_ref.user:
@@ -720,7 +721,7 @@ def main():
         messenger.debug("Repository: %s" % repo_ref.repo_name)
     messenger.debug('---\n')
 
-    # setup support for actions
+    # setup support for commands
     if repo_ref.protocol == 'ssh':
         if repo_ref.user is None:
             repo_ref.user = getpass.getuser()
@@ -729,26 +730,26 @@ def main():
         repo_ref.repo_path = os.path.expanduser(os.path.expandvars(repo_ref.repo_path))
 
     # check #
-    if action_check:
+    if command_check:
         if repo_ref.protocol != 'ssh' and repo_ref.protocol != 'file':
             messenger.error('Currently only supporting "ssh" or "file" protocol for repository checking.')
             sys.exit(1)
         check_remote(repo_ref=repo_ref, messenger=messenger, opts=opts)
 
-    # remove #
-    if action_remove:
+    # delete #
+    if command_delete:
         if repo_ref.protocol != 'ssh' and repo_ref.protocol != 'file':
             messenger.error('Currently only supporting "ssh" or "file" protocol for repository removal.')
             sys.exit(1)
-        remove_remote(repo_ref=repo_ref, messenger=messenger, opts=opts)
+        delete_remote(repo_ref=repo_ref, messenger=messenger, opts=opts)
 
     # create and/or init #
-    if action_create:
+    if command_create:
         if repo_ref.protocol != 'ssh' and repo_ref.protocol != 'file':
             messenger.error('Currently only supporting "ssh" or "file" protocol for repository creation.')
             sys.exit(1)
         create_remote(repo_ref=repo_ref, messenger=messenger, opts=opts, init=True)
-    elif action_init:
+    elif command_init:
         if repo_ref.protocol != 'ssh' and repo_ref.protocol != 'file':
             messenger.error('Currently only supporting "ssh" or "file" protocol for repository initialization.')
             sys.exit(1)
@@ -758,7 +759,8 @@ def main():
                     check=True)
 
     # add #
-    if action_add:
+    if command_add:
+        assert remote_name is not None
         add_remote(remote_name, repo_ref, messenger, opts)
 
 if __name__ == '__main__':
