@@ -477,7 +477,7 @@ help on REPO-URL syntaxes.
 ## Main CLI
 
 _prog_usage = '%prog [options] <setup|create|init|add|remove|help> <REPO-URL>'
-_prog_version = 'YonderGit Version 1.2'
+_prog_version = 'YonderGit Version 1.3'
 _prog_description = """\
 Remote Git repository manager: create, initialize and/or add a Git repository
 at REPO-URL as a remote of the local repository. See "ygit.py help actions" for
