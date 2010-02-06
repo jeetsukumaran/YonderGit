@@ -426,13 +426,15 @@ def add_remote(remote_name, repo_ref, messenger, opts):
                 hint = ' (maybe a remote called "%s" is already defined?)' % remote_name
             messenger.error('Error adding remote%s.' % hint)
             sys.exit(1)
-    messenger.ygit_info('Configuring (master) branches for "%s"' % remote_name)
-    command = "git config branch.master.remote '%s'" % remote_name
+
+def configure_branch(remote_name, messenger, opts, branch_name='master'):
+    messenger.ygit_info('Configuring branch "branch_name" for remote "%s"' % (branch_name, remote_name))
+    command = "git config branch.%s.remote '%s'" % (branch_name, remote_name)
     messenger.ygit_command(command)
     if not opts.dry_run:
         proc = subprocess.Popen([command], shell=True, stdout=git_stdout)
         proc.wait()
-    command = "git config branch.master.merge 'refs/heads/master'"
+    command = "git config branch.%s.merge 'refs/heads/%s'" % (branch_name, branch_name)
     messenger.ygit_command(command)
     if not opts.dry_run:
         proc = subprocess.Popen([command], shell=True, stdout=git_stdout)
