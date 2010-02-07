@@ -38,8 +38,8 @@ import subprocess
 _prog_version = 'YonderGit Version 2.0'
 _prog_description = """\
 Remote Git repository manager: create, initialize and/or add a Git repository
-at REPO-URL as a remote of the local repository. See "ygit.py help commands" for
-help on commands."""
+at REPO-URL as a remote of the local repository. See 'ygit.py help commands' for
+help on commands, and 'ygit.py help urls' for help on repository URL syntax."""
 _prog_author = 'Jeet Sukumaran'
 _prog_copyright = 'Copyright (C) 2009 Jeet Sukumaran.'
 
@@ -506,7 +506,7 @@ delete <REPO-URL>        | recursively delete the directory specified by
     if show_more_help:
         stream.write("""\
 See 'ygit.py help options' for help on options, or 'ygit.py help urls' for
-help on REPO-URL syntaxes.
+help on REPO-URL syntax.
 """)
 
 ############################################################################
@@ -669,8 +669,7 @@ def main():
                 messenger.error("Available help terms: 'commands', 'urls', 'options'")
                 sys.exit(1)
         else:
-            show_commands_help(show_more_help=True)
-#            show_urls_help()
+            parser.print_help()
             sys.exit(0)
 
     command_command = args[0].lower()
