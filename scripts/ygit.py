@@ -46,34 +46,47 @@ _prog_copyright = 'Copyright (C) 2009 Jeet Sukumaran.'
 ############################################################################
 ## Parsing Git repository URL's
 
-EXAMPLE_URLS = [
-    'rsync://host.xz/path/to/repo.git/',
-    'http://host.xz/path/to/repo.git/',
-    'https://host.xz/path/to/repo.git/',
-    'git://host.xz/path/to/repo.git/',
-    'git://host.xz/~user/path/to/repo.git/',
-    'ssh://user@host.xz:port/path/to/repo.git/',
-    'ssh://user@host.xz/path/to/repo.git/',
-    'ssh://host.xz:port/path/to/repo.git/',
-    'ssh://host.xz/path/to/repo.git/',
-    'ssh://user@host.xz/path/to/repo.git/',
-    'ssh://host.xz/path/to/repo.git/',
-    'ssh://user@host.xz/~user/path/to/repo.git/',
-    'ssh://host.xz/~user/path/to/repo.git/',
-    'ssh://user@host.xz/~/path/to/repo.git',
-    'ssh://host.xz/~/path/to/repo.git',
-    'user@host.xz:/path/to/repo.git/',
-    'host.xz:/path/to/repo.git/',
-    'user@host.xz:~user/path/to/repo.git/',
-    'host.xz:~user/path/to/repo.git/',
-    'user@host.xz:path/to/repo.git',
-    'host.xz:path/to/repo.git',
-    '/path/to/repo.git/',
-    'path/to/repo.git/',
-    '~/path/to/repo.git',
-    'file:///path/to/repo.git/',
-    'file://~/path/to/repo.git/',
-]
+EXAMPLE_URLS = {
+
+    "Secure Shell Transport Protocol" : [
+        'ssh://user@host.xz:port/path/to/repo.git/',
+        'ssh://user@host.xz/path/to/repo.git/',
+        'ssh://host.xz:port/path/to/repo.git/',
+        'ssh://host.xz/path/to/repo.git/',
+        'ssh://user@host.xz/path/to/repo.git/',
+        'ssh://host.xz/path/to/repo.git/',
+        'ssh://user@host.xz/~user/path/to/repo.git/',
+        'ssh://host.xz/~user/path/to/repo.git/',
+        'ssh://user@host.xz/~/path/to/repo.git',
+        'ssh://host.xz/~/path/to/repo.git',
+        'user@host.xz:/path/to/repo.git/',
+        'host.xz:/path/to/repo.git/',
+        'user@host.xz:~user/path/to/repo.git/',
+        'host.xz:~user/path/to/repo.git/',
+        'user@host.xz:path/to/repo.git',
+        'host.xz:path/to/repo.git',
+        'rsync://host.xz/path/to/repo.git/',
+    ],
+
+    "Git Transport Protocol" : [
+        'git://host.xz/path/to/repo.git/',
+        'git://host.xz/~user/path/to/repo.git/',
+    ],
+
+    "HTTP/S Transport Protocol" : [
+        'http://host.xz/path/to/repo.git/',
+        'https://host.xz/path/to/repo.git/',
+    ],
+
+    "Local (Filesystem) Transport Protocol" : [
+        '/path/to/repo.git/',
+        'path/to/repo.git/',
+        '~/path/to/repo.git',
+        'file:///path/to/repo.git/',
+        'file://~/path/to/repo.git/',
+    ],
+
+}
 
 class RepositoryReference(object):
     """
@@ -452,9 +465,15 @@ def configure_branch(remote_name, messenger, opts, branch_name='master'):
         proc.wait()
 
 def show_urls_help(stream=sys.stdout):
-    stream.write("Examples of REPO-URL's:\n")
-    for u in EXAMPLE_URLS:
-        stream.write('\t%s\n' % u)
+#    stream.write("=====================\n")
+#    stream.write("Repository URL Syntax\n")
+#    stream.write("=====================\n")
+    for transport, urls in EXAMPLE_URLS.items():
+        stream.write('\n{0:->{1}}'.format("", len(transport)))
+        stream.write('\n{0}'.format(transport))
+        stream.write('\n{0:->{1}}\n'.format("", len(transport)))
+        for u in urls:
+            stream.write('# %s\n' % u)
 
 def show_commands_help(stream=sys.stdout, show_more_help=True):
     stream.write("""\
