@@ -669,8 +669,8 @@ def main():
                 messenger.error("Available help terms: 'commands', 'urls', 'options'")
                 sys.exit(1)
         else:
-            show_commands_help(show_more_help=False)
-            show_urls_help()
+            show_commands_help(show_more_help=True)
+#            show_urls_help()
             sys.exit(0)
 
     command_command = args[0].lower()
