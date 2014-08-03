@@ -41,7 +41,7 @@ that, enter "ygit.py commands?" for a summary of possible commands, or "ygit.py
 
 -   Add "REPO-URL" as a new remote called "NAME" of the local git repository.
 
-        $ ygit.py add REPO-URL NAME
+        $ ygit.py add NAME REPO-URL
 
 -   Recursively remove the directory "REPO-URL" and all subdirectories and
     files.
